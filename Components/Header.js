@@ -4,8 +4,12 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 const Header = () => {
   return (
     <View style={styles.header}>
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
-      <View>
+      <Image
+        source={{ uri: 'https://moitruongbinhduong.gov.vn/upload/hinhanh/brem-(1)-1764.png' }}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+      <View style={styles.textContainer}>
         <Text style={styles.title}>SỞ NÔNG NGHIỆP VÀ MÔI TRƯỜNG</Text>
         <Text style={styles.subtitle}>TRUNG TÂM QUAN TRẮC - KỸ THUẬT TN&MT</Text>
       </View>
@@ -16,23 +20,29 @@ const Header = () => {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 12,
     backgroundColor: '#ffffff',
     alignItems: 'center',
   },
   logo: {
-    width: 60,
+    width: 90,
     height: 60,
-    marginRight: 10,
+    marginRight: 15,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent:'center',
   },
   title: {
     fontWeight: 'bold',
     color: '#1B6A77',
+    fontSize: 16,
   },
   subtitle: {
     fontSize: 12,
     color: '#1B6A77',
   },
 });
+
 
 export default Header;

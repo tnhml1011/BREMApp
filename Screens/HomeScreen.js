@@ -1,23 +1,49 @@
 import React from 'react';
-import { ScrollView, Image, View, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import Header from '../Components/Header';
+import CarouselSection from '../Components/Carousel';
+import Footer from '../Components/Footer';
+import TopMenuBar from '../Components/TopMenuBar';
+import AboutSection from '../Components/AboutSection';
+import ServiceItem from '../Components/Serviceitem';
 import { Text } from 'react-native-paper';
-import Header from '../Components/Header.js';
-import Carousel from '../Components/Carousel';
-
 const HomeScreen = () => {
   return (
-    <ScrollView style={styles.container}>
-      <Header />
-      <Carousel />
-      {/* Thêm các phần khác nếu có */}
-    </ScrollView>
+    <View style={styles.container}>
+      {/* Nội dung có thể scroll */}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Header />
+        <TopMenuBar/>
+        <CarouselSection /> 
+        <Text style={styles.title}>Về Chúng Tôi</Text>
+        <AboutSection/>
+        <Text style={styles.title}>Dịch vụ nổi bật</Text>
+        <ServiceItem/>
+         <Footer />
+      </ScrollView>
+
+      {/* Footer cố định dưới */}
+    
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B6A77', // màu xanh của site
+    backgroundColor: '#ffffff',
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  title:{
+    
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#1B6A77',
+    marginBottom: 8,
+    textAlign:'center',
+  
   },
 });
 

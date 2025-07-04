@@ -1,20 +1,26 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 const slides = [
-  {
+  { 
     id: 1,
     title: 'PHÒNG HÀNH CHÍNH TỔNG HỢP',
     image: {
-      uri: 'https://moitruongbinhduong.gov.vn/thumb/1366x570/1/upload/hinhanh/7-5349.png',
+      uri: 'https://moitruongbinhduong.gov.vn/thumb/1366x570/1/upload/hinhanh/6-1162.png',
     },
   },
   {
     id: 2,
-    title: 'PHÒNG PHÂN TÍCH MÔI TRƯỜNG',
+    
     image: {
       uri: 'https://moitruongbinhduong.gov.vn/thumb/1366x570/1/upload/hinhanh/1-8020.png',
     },
@@ -28,7 +34,7 @@ const slides = [
   },
    {
     id: 4,
-    title: 'PHÒNG QUAN TRẮC HIỆN TƯỢNG',
+    title: 'PHÒNG QUAN TRẮC HIỆN TRƯỜNG',
     image: {
       uri: 'https://moitruongbinhduong.gov.vn/thumb/1366x570/1/upload/hinhanh/3-4349.png',
     },
@@ -55,36 +61,43 @@ const slides = [
     },
   },
 ];
-const CarouselSection = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+const Carousel = () => {
+  const scrollViewRef = useRef();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleScroll = (event) => {
+    const slideIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+    setCurrentIndex(slideIndex);
+  };
 
   return (
     <View style={styles.container}>
-      <Carousel
-        width={width}
-        height={220}
-        data={slides}
-        autoPlay
-        autoPlayInterval={4000}
-        scrollAnimationDuration={800}
-        onSnapToItem={(index) => setActiveIndex(index)}
-        renderItem={({ item }) => (
-          <View style={styles.slide}>
-            <Image source={item.image} style={styles.image} />
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
+        {slides.map((slide) => (
+          <View key={slide.id} style={styles.slide}>
+            <Image source={slide.image} style={styles.image} />
             <View style={styles.overlay}>
-              <Text style={styles.text}>{item.title}</Text>
+              <Text style={styles.title}>{slide.title}</Text>
             </View>
           </View>
-        )}
-      />
-      {/* Dot indicators */}
+        ))}
+      </ScrollView>
+
+      {/* Dots indicator */}
       <View style={styles.dotsContainer}>
         {slides.map((_, index) => (
           <View
             key={index}
             style={[
               styles.dot,
-              index === activeIndex ? styles.activeDot : null,
+              index === currentIndex ? styles.activeDot : null,
             ]}
           />
         ))}
@@ -95,28 +108,30 @@ const CarouselSection = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    height: 240,
+    marginBottom: 10,
   },
   slide: {
+    width,
+    height: 230,
     position: 'relative',
   },
   image: {
     width: '100%',
-    height: 220,
-    resizeMode: 'cover',
+    height: '80%',
   },
   overlay: {
     position: 'absolute',
     bottom: 20,
     left: 20,
     backgroundColor: 'rgba(0, 80, 100, 0.7)',
-    padding: 10,
+    padding: 8,
     borderRadius: 6,
   },
-  text: {
+  title: {
     color: '#fff',
+    fontSize: 14,
     fontWeight: 'bold',
-    fontSize: 16,
   },
   dotsContainer: {
     flexDirection: 'row',
@@ -127,7 +142,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ccc',
+    backgroundColor: '#bbb',
     marginHorizontal: 4,
   },
   activeDot: {
@@ -137,4 +152,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CarouselSection;
+export default Carousel;
