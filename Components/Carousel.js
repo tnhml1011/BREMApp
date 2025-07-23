@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 const { width } = Dimensions.get('window');
 
 const slides = [
-  { 
+  {
     id: 1,
     title: 'PHÒNG HÀNH CHÍNH TỔNG HỢP',
     image: {
@@ -20,7 +20,6 @@ const slides = [
   },
   {
     id: 2,
-    
     image: {
       uri: 'https://moitruongbinhduong.gov.vn/thumb/1366x570/1/upload/hinhanh/1-8020.png',
     },
@@ -32,7 +31,7 @@ const slides = [
       uri: 'https://moitruongbinhduong.gov.vn/thumb/1366x570/1/upload/hinhanh/2-1295.png',
     },
   },
-   {
+  {
     id: 4,
     title: 'PHÒNG QUAN TRẮC HIỆN TRƯỜNG',
     image: {
@@ -61,6 +60,7 @@ const slides = [
     },
   },
 ];
+
 const Carousel = () => {
   const scrollViewRef = useRef();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,6 +69,17 @@ const Carousel = () => {
     const slideIndex = Math.round(event.nativeEvent.contentOffset.x / width);
     setCurrentIndex(slideIndex);
   };
+
+  // Tự động chuyển slide
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nextIndex = (currentIndex + 1) % slides.length;
+      scrollViewRef.current.scrollTo({ x: nextIndex * width, animated: true });
+      setCurrentIndex(nextIndex);
+    }, 3000); // mỗi 3 giây
+
+    return () => clearInterval(interval); // Clear khi component unmount
+  }, [currentIndex]);
 
   return (
     <View style={styles.container}>
@@ -83,9 +94,11 @@ const Carousel = () => {
         {slides.map((slide) => (
           <View key={slide.id} style={styles.slide}>
             <Image source={slide.image} style={styles.image} />
-            <View style={styles.overlay}>
-              <Text style={styles.title}>{slide.title}</Text>
-            </View>
+            {slide.title && (
+              <View style={styles.overlay}>
+                <Text style={styles.title}>{slide.title}</Text>
+              </View>
+            )}
           </View>
         ))}
       </ScrollView>

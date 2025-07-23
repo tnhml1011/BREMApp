@@ -1,83 +1,108 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Linking, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Linking } from 'react-native';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+
+// 🔧 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAuhJXzsujtgdwiNYyNNaRe6IFefxz_kmQ",
+  authDomain: "brem-82e48.firebaseapp.com",
+  projectId: "brem-82e48",
+  storageBucket: "brem-82e48.appspot.com",
+  messagingSenderId: "548387353397",
+  appId: "1:548387353397:android:5de4b9701b08c02f0a927c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const ServiceItem = () => {
+  const [services, setServices] = useState([]);
   const navigation = useNavigation();
 
-  const handlePress = () => {
-    // Điều hướng đến chi tiết dịch vụ nếu có
-    navigation.navigate('ServiceDetail', {
-      title: 'Quan trắc nước mặt, nước ngầm, trầm tích đáy, không khí và đất.',
-    });
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'services'));
+        let data = snapshot.docs.map(doc => doc.data());
+        data.sort((a, b) => b.views - a.views);
+        setServices(data.slice(0, 3));
+      } catch (error) {
+        console.error('Lỗi tải dữ liệu:', error);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  const openLink = (url) => {
+    Linking.openURL(url).catch(err => console.error('Không mở được URL:', err));
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={handlePress}>
-      <View style={styles.innerContainer}>
-        <View style={styles.imageWrapper}>
-          <Image
-            source={{ uri: 'https://moitruongbinhduong.gov.vn/thumb/435x225/1/upload/news/12-4763.jpg' }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+    <ScrollView style={styles.container}>
+      {services.map((item, index) => (
+        <View key={index} style={styles.card}>
+          <Image source={{ uri: item.thumbnail }} style={styles.image} resizeMode="cover" />
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.meta}>📅 {item.date}   👁 {item.views}</Text>
+          <Text style={styles.description}>{item.description}</Text>
+          <TouchableOpacity style={styles.button} onPress={() => openLink(item.url)}>
+            <Text style={styles.buttonText}>Xem chi tiết</Text>
+          </TouchableOpacity>
         </View>
+      ))}
 
-        <View style={styles.infoWrapper}>
-          <Text style={styles.title}>
-            Quan trắc nước mặt, nước ngầm, trầm tích đáy, không khí và đất.
-          </Text>
-          <Text style={styles.description}>
-            Trung tâm là đơn vị duy nhất trên địa bàn tỉnh có chức năng tổ chức thực hiện công tác quan trắc tài nguyên và môi trường, đo đạc và lập báo cáo giám sát môi trường, thực hiện trưng cầu giám định phục vụ công tác thanh kiểm tra về bảo vệ môi trường cho các cơ quan quản lý nhà nước trên địa bàn tỉnh Bình Dương
-          </Text>
-          <TouchableOpacity onPress={() => Linking.openURL('https://moitruongbinhduong.gov.vn/dich-vu/quan-trac-nuoc-mat-nuoc-ngam-tram-tich-day-khong-khi-va-dat-31.html')}>
-                 <Text style={styles.link}>Xem chi tiết</Text>
-            </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#004d40' }]} onPress={() => navigation.navigate('ServiceScreen')}>
+        <Text style={styles.buttonText}>Xem thêm dịch vụ</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    margin: 16,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    elevation: 3,
-    overflow: 'hidden',
+    padding: 16,
   },
-  innerContainer: {
-    flexDirection: 'column',
-  },
-  imageWrapper: {
-    width: '100%',
-    height: 180,
+  card: {
+    borderRadius: 12,
+    backgroundColor: '#f2f2f2',
+    padding: 16,
+    marginBottom: 20,
+    elevation: 2,
   },
   image: {
     width: '100%',
-    height: '100%',
-  },
-  infoWrapper: {
-    padding: 12,
+    height: 180,
+    borderRadius: 8,
+    marginBottom: 10,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#1B6A77',
+    color: '#004d40',
+    marginBottom: 4,
+  },
+  meta: {
+    fontSize: 12,
+    color: '#666',
     marginBottom: 8,
   },
   description: {
-    fontSize: 14,
-    color: '#333',
-    lineHeight: 20,
-    marginBottom: 8,
+    color: '#444',
+    marginBottom: 12,
   },
-  link: {
-    fontSize: 14,
-    color: '#1B6A77',
-    fontWeight: '600',
+  button: {
+    backgroundColor: '#00796b',
+    paddingVertical: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 

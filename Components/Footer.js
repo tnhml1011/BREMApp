@@ -1,36 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 
 const Footer = () => {
+  const [contact, setContact] = useState(null);
+
+  useEffect(() => {
+    const fetchContact = async () => {
+      try {
+        const doc = await firestore().collection('lienhe').doc('main').get();
+        if (doc.exists) {
+          setContact(doc.data());
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu footer:', error);
+      }
+    };
+
+    fetchContact();
+  }, []);
+
+  if (!contact) return null;
+
   return (
     <View style={styles.footer}>
-      <Text style={styles.text}>
-        Địa chỉ: Số 26 Huỳnh Văn Nghệ, Phường Phú Lợi, TP. Hồ Chí Minh.</Text>
-        
-        <Text style={styles.text}>Điện thoại: 0274 3824 753</Text>
-       <Text style={styles.text}> Email: quantrac.tnmt@binhduong.gov.vn</Text>
-
-        <Text style={styles.text}>Website: Moitruongbinhduong.gov.vn</Text>
-
-      
-      
-      
+      <Text style={styles.text}>{contact.tentt}</Text>
+      <Text style={styles.text}>Địa chỉ: {contact.diachi}</Text>
+      <Text style={styles.text}>Điện thoại: {contact.sdt} | {contact.didong}</Text>
+      <Text style={styles.text}>Email: {contact.email}</Text>
+      <Text style={styles.text}>Website: {contact.website}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   footer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 12,
+    padding: 15,
     backgroundColor: '#1B6A77',
-    paddingHorizontal: 16,
+    alignItems: 'center',
   },
   text: {
-    color: '#ffffff',
+    color: '#fff',
     fontSize: 12,
     textAlign: 'center',
+    marginBottom: 3,
   },
 });
 
