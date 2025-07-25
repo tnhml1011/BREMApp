@@ -23,6 +23,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const fadeAnim = useState(new Animated.Value(0))[0];
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -50,6 +51,30 @@ const Login = () => {
 
     loadSavedLogin();
   }, []);
+const handleForgotPassword = async () => {
+  if (!email) {
+    Alert.alert('Vui lòng nhập email để đặt lại mật khẩu');
+    return;
+  }
+
+  try {
+    await auth().sendPasswordResetEmail(email);
+    Alert.alert(
+      'Đã gửi email đặt lại mật khẩu',
+      'Vui lòng kiểm tra hộp thư đến và làm theo hướng dẫn.'
+    );
+  } catch (error) {
+    if (error.code === 'auth/user-not-found') {
+      Alert.alert('Email không tồn tại', 'Vui lòng kiểm tra lại địa chỉ email.');
+    } else if (error.code === 'auth/invalid-email') {
+      Alert.alert('Email không hợp lệ', 'Địa chỉ email không đúng định dạng.');
+    } else {
+      Alert.alert('Lỗi', error.message);
+    }
+  }
+};
+
+
 
   const handleLogin = async () => {
   if (!email || !password) {
@@ -95,54 +120,69 @@ const Login = () => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={{ opacity: fadeAnim }}>
-       <Image
-        source={{ uri: 'https://moitruongbinhduong.gov.vn/upload/hinhanh/brem-(1)-1764.png' }}
-        style={styles.logo}
-        />
+  <Animated.View style={{ opacity: fadeAnim }}>
+    <Image
+      source={{
+        uri: 'https://moitruongbinhduong.gov.vn/upload/hinhanh/brem-(1)-1764.png',
+      }}
+      style={styles.logo}
+    />
 
-        <Text style={styles.title}>Chào mừng bạn!</Text>
+    <Text style={styles.title}>Chào mừng bạn!</Text>
 
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          placeholderTextColor="#666"
-        />
-        <TextInput
-          placeholder="Mật khẩu"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholderTextColor="#666"
-        />
+    <TextInput
+      placeholder="Email"
+      style={styles.input}
+      value={email}
+      onChangeText={setEmail}
+      autoCapitalize="none"
+      keyboardType="email-address"
+      placeholderTextColor="#666"
+    />
 
-        <View style={styles.checkboxContainer}>
-          <TouchableOpacity onPress={toggleRememberMe} style={styles.checkbox}>
-            <View style={[styles.checkboxBox, rememberMe && styles.checkboxChecked]}>
-              {rememberMe && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.checkboxLabel}>Ghi nhớ đăng nhập</Text>
-          </TouchableOpacity>
-        </View>
-
-        {loading ? (
-          <ActivityIndicator size="large" color="#004D40" />
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Đăng nhập</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.link}>Chưa có tài khoản? Đăng ký ngay</Text>
-        </TouchableOpacity>
-      </Animated.View>
+    {/* Ô nhập mật khẩu có nút hiện/ẩn */}
+    <View style={styles.passwordContainer}>
+      <TextInput
+        placeholder="Mật khẩu"
+        style={styles.passwordInput}
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={!showPassword}
+        placeholderTextColor="#666"
+      />
+      <TouchableOpacity onPress={() => setShowPassword(prev => !prev)}>
+        <Text style={styles.toggleText}>{showPassword ? 'Ẩn' : 'Hiện'}</Text>
+      </TouchableOpacity>
     </View>
+
+    <TouchableOpacity onPress={handleForgotPassword}>
+      <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
+    </TouchableOpacity>
+
+    <View style={styles.checkboxContainer}>
+      <TouchableOpacity onPress={toggleRememberMe} style={styles.checkbox}>
+        <View
+          style={[styles.checkboxBox, rememberMe && styles.checkboxChecked]}>
+          {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+        </View>
+        <Text style={styles.checkboxLabel}>Ghi nhớ đăng nhập</Text>
+      </TouchableOpacity>
+    </View>
+
+    {loading ? (
+      <ActivityIndicator size="large" color="#004D40" />
+    ) : (
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Đăng nhập</Text>
+      </TouchableOpacity>
+    )}
+
+    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+      <Text style={styles.link}>Chưa có tài khoản? Đăng ký ngay</Text>
+    </TouchableOpacity>
+  </Animated.View>
+</View>
+
   );
 };
 
@@ -154,6 +194,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
+  forgotPassword: {
+  color: '#00796B',
+  fontSize: 14,
+  textAlign: 'right',
+  width: 300,
+  marginBottom: 10,
+  textDecorationLine: 'underline',
+},
+passwordContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderColor: '#B2DFDB',
+  borderWidth: 1,
+  backgroundColor: '#fff',
+  borderRadius: 12,
+  marginBottom: 16,
+  paddingRight: 10,
+  elevation: 2,
+  width: 300,
+},
+
+passwordInput: {
+  flex: 1,
+  padding: 14,
+  fontSize: 16,
+  borderRadius: 12,
+},
+
+toggleText: {
+  color: '#00796B',
+  fontWeight: '500',
+  fontSize: 14,
+},
+
   logo: {
   width: 300,
   height: 90,
